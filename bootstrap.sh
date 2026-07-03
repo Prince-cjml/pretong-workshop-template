@@ -3,12 +3,39 @@ set -euo pipefail
 
 COURSE_URL="${COURSE_URL:-https://github.com/Prince-cjml/pretong-workshop-upstream.git}"
 
+require_clean_worktree() {
+    if ! git diff --quiet; then
+        printf '%s\n' \
+          "ERROR: bootstrap requires a clean working tree."
+
+        exit 1
+    fi
+
+    if [[ -n "$(git status --porcelain)" ]]; then
+        printf '%s\n' \
+          "ERROR: bootstrap requires a clean working tree."
+
+        exit 1
+    fi
+}
+
+if ! git remote get-url origin \
+  >/dev/null 2>&1
+then
+    printf '%s\n' \
+      "ERROR: this repository has no origin remote."
+
+    exit 1
+fi
+
 ORIGIN_URL="$(git remote get-url origin)"
 
 if [[ "$ORIGIN_URL" == "$COURSE_URL" ]]; then
     echo "ERROR: bootstrap must run in a personal assignment repository."
     exit 1
 fi
+
+require_clean_worktree
 
 if git show-ref \
   --verify \
@@ -39,6 +66,27 @@ git fetch \
   --prune \
   course
 
+required_refs=(
+  course/base-v3
+  course/broken-start-v3
+  course/native-integration-v3
+  course/training-observability-v3
+  course/recovery-data-v3
+  course/bad-parallel-loader-v3
+  course/immutable-v3
+)
+
+for ref in "${required_refs[@]}"; do
+    if ! git rev-parse \
+      --verify \
+      "${ref}^{commit}" \
+      >/dev/null 2>&1
+    then
+        echo "ERROR: missing course ref: $ref"
+        exit 1
+    fi
+done
+
 git switch \
   --create submission \
   course/broken-start-v3
@@ -46,6 +94,8 @@ git switch \
 git config \
   branch.submission.description \
   "Pretong workshop submission branch. Do not rewrite published history."
+
+require_clean_worktree
 
 git push \
   --set-upstream origin submission
