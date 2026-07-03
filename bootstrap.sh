@@ -51,7 +51,7 @@ Current branch:
 
 Next commands:
   bash scripts/doctor.sh bootstrap
-  mamba create -y -n hybridml-rescue --file conda-linux-64.lock
+  conda create -y -n hybridml-rescue --file conda-linux-64.lock
   conda activate hybridml-rescue
   bash scripts/doctor.sh environment
 
