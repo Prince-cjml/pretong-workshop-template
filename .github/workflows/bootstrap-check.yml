@@ -1,0 +1,30 @@
+name: Template bootstrap check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap-check:
+    name: Bootstrap script
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out template
+        uses: actions/checkout@v4
+
+      - name: Validate template files
+        run: |
+          test -f README.md
+          test -x bootstrap.sh
+          bash -n bootstrap.sh
+          grep -q "pretong-workshop-upstream" bootstrap.sh
