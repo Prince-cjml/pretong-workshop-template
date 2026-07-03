@@ -25,12 +25,19 @@ else
     git remote add course "$COURSE_URL"
 fi
 
+git config --unset-all remote.course.fetch 2>/dev/null || true
+git config --add remote.course.fetch "+refs/heads/course/*:refs/remotes/course/*"
+
 git fetch \
   --force \
   --prune \
   course \
-  "+refs/tags/course/*:refs/tags/course/*" \
-  "+refs/heads/course/*:refs/remotes/course/*"
+  "+refs/tags/course/*:refs/tags/course/*"
+
+git fetch \
+  --force \
+  --prune \
+  course
 
 git switch \
   --create submission \
